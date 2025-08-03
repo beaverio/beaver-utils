@@ -16,8 +16,9 @@ public enum Permission {
     REPORT_READ("report:read"),
 
     // Workspace management
-    WORK_READ("work:read"),
-    WORK_WRITE("work:write");
+    WORKSPACE_OWNER("workspace:owner"),
+    WORKSPACE_READ("workspace:read"),
+    WORKSPACE_WRITE("workspace:write");
 
     private final String value;
 
