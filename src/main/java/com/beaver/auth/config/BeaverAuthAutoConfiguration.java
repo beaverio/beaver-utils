@@ -1,6 +1,8 @@
 package com.beaver.auth.config;
 
 import com.beaver.auth.cookie.AuthCookieService;
+import com.beaver.auth.cookie.ServletTokenExtractor;
+import com.beaver.auth.cookie.ReactiveTokenExtractor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,17 +18,12 @@ public class BeaverAuthAutoConfiguration {
         return new AuthCookieService();
     }
 
-    // Servlet-specific beans - using string class names to avoid loading servlet classes in reactive environments
+    // Servlet-specific beans
     @Bean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(name = "jakarta.servlet.http.HttpServletRequest")
-    public Object servletTokenExtractor() {
-        try {
-            Class<?> clazz = Class.forName("com.beaver.auth.cookie.ServletTokenExtractor");
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create ServletTokenExtractor", e);
-        }
+    public ServletTokenExtractor servletTokenExtractor() {
+        return new ServletTokenExtractor();
     }
 
     @Bean
@@ -46,12 +43,7 @@ public class BeaverAuthAutoConfiguration {
     @Bean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
     @ConditionalOnClass(name = "org.springframework.http.server.reactive.ServerHttpRequest")
-    public Object reactiveTokenExtractor() {
-        try {
-            Class<?> clazz = Class.forName("com.beaver.auth.cookie.ReactiveTokenExtractor");
-            return clazz.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create ReactiveTokenExtractor", e);
-        }
+    public ReactiveTokenExtractor reactiveTokenExtractor() {
+        return new ReactiveTokenExtractor();
     }
 }
