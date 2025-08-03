@@ -1,5 +1,6 @@
-package com.beaver.auth;
+package com.beaver.auth.permissions;
 
+import com.beaver.auth.exceptions.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

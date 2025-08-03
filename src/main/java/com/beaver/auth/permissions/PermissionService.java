@@ -1,4 +1,4 @@
-package com.beaver.auth;
+package com.beaver.auth.permissions;
 
 import org.springframework.stereotype.Service;
 

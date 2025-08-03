@@ -1,5 +1,11 @@
-com/beaver/auth/PermissionAspect.class
-com/beaver/auth/RequiresPermission.class
-com/beaver/auth/Permission.class
-com/beaver/auth/PermissionService.class
-com/beaver/auth/AccessDeniedException.class
+com/beaver/auth/exceptions/AccessDeniedException.class
+META-INF/spring-configuration-metadata.json
+com/beaver/auth/permissions/PermissionAspect.class
+com/beaver/auth/jwt/JwtService.class
+com/beaver/auth/permissions/RequiresPermission.class
+com/beaver/auth/permissions/Permission.class
+com/beaver/auth/permissions/PermissionService.class
+com/beaver/auth/exceptions/JwtTokenMissingException.class
+com/beaver/auth/jwt/JwtConfig.class
+com/beaver/auth/exceptions/JwtTokenIncorrectStructureException.class
+com/beaver/auth/exceptions/JwtTokenMalformedException.class

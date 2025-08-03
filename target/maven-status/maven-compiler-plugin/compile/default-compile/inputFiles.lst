@@ -1,5 +1,10 @@
-/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/AccessDeniedException.java
-/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/Permission.java
-/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/PermissionAspect.java
-/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/PermissionService.java
-/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/RequiresPermission.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/exceptions/JwtTokenIncorrectStructureException.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/jwt/JwtService.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/permissions/PermissionService.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/permissions/RequiresPermission.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/exceptions/AccessDeniedException.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/jwt/JwtConfig.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/exceptions/JwtTokenMalformedException.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/permissions/PermissionAspect.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/permissions/Permission.java
+/Users/connorburge/Projects/beaver/beaver-auth/src/main/java/com/beaver/auth/exceptions/JwtTokenMissingException.java
