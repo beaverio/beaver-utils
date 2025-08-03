@@ -1,6 +1,9 @@
 package com.beaver.auth.cookie;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -70,5 +73,38 @@ public class AuthCookieService {
                 .path("/")
                 .maxAge(0)
                 .build();
+    }
+
+    /**
+     * Extract access token from ServerHttpRequest (Reactive environments)
+     */
+    public String extractAccessToken(ServerHttpRequest request) {
+        return extractTokenFromReactiveRequest(request);
+    }
+
+    /**
+     * Extract refresh token from HttpServletRequest (Servlet environments)
+     */
+    public String extractRefreshToken(HttpServletRequest request) {
+        return extractTokenFromServletRequest(request);
+    }
+
+    private String extractTokenFromServletRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AuthCookieService.REFRESH_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String extractTokenFromReactiveRequest(ServerHttpRequest request) {
+        if (request.getCookies().containsKey(AuthCookieService.ACCESS_TOKEN_COOKIE)) {
+            return request.getCookies().getFirst(AuthCookieService.ACCESS_TOKEN_COOKIE).getValue();
+        }
+        return null;
     }
 }
