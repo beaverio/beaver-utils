@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Permission {
-    DENY_ALL("deny:read"),
+    DENY_ALL("deny:all"),
 
     // Financial permissions
     TRANSACTION_READ("transaction:read"),
@@ -16,8 +16,8 @@ public enum Permission {
     REPORT_READ("report:read"),
 
     // Workspace management
-    WORKSPACE_SETTINGS("workspace:settings"),
-    WORKSPACE_MEMBERS("workspace:members");
+    WORK_READ("work:read"),
+    WORK_WRITE("work:write");
 
     private final String value;
 
