@@ -56,12 +56,21 @@
 			<version>${aspectj.version}</version>
 		</dependency>
 
-		<!-- Servlet API for HTTP request handling -->
+		<!-- Servlet API for HTTP request handling (optional - only for servlet apps) -->
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 			<version>6.0.0</version>
 			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Spring WebFlux for reactive support (optional - only for reactive apps) -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webflux</artifactId>
+			<version>${spring.version}</version>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Spring Web for RequestContextHolder -->

@@ -2,24 +2,28 @@ package com.beaver.auth.cookie;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TokenExtractor {
+public class ServletTokenExtractor {
 
     /**
-     * Extract access token from WebFlux ServerHttpRequest (for Gateway)
+     * Extract access token from HttpServletRequest (for Servlet-based services)
      */
-    public String extractAccessToken(ServerHttpRequest request) {
-        if (request.getCookies().containsKey(AuthCookieService.ACCESS_TOKEN_COOKIE)) {
-            return request.getCookies().getFirst(AuthCookieService.ACCESS_TOKEN_COOKIE).getValue();
+    public String extractAccessToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AuthCookieService.ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
 
     /**
-     * Extract refresh token from WebFlux ServerHttpRequest (for User-Service)
+     * Extract refresh token from HttpServletRequest (for Servlet-based services)
      */
     public String extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

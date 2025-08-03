@@ -2,7 +2,8 @@ package com.beaver.auth.config;
 
 import com.beaver.auth.filter.GatewaySecretFilter;
 import com.beaver.auth.cookie.AuthCookieService;
-import com.beaver.auth.cookie.TokenExtractor;
+import com.beaver.auth.cookie.ServletTokenExtractor;
+import com.beaver.auth.cookie.ReactiveTokenExtractor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,9 +19,12 @@ public class BeaverAuthAutoConfiguration {
         return new AuthCookieService();
     }
 
+    // Servlet-specific beans
     @Bean
-    public TokenExtractor tokenExtractor() {
-        return new TokenExtractor();
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    @ConditionalOnClass(name = "jakarta.servlet.http.HttpServletRequest")
+    public ServletTokenExtractor servletTokenExtractor() {
+        return new ServletTokenExtractor();
     }
 
     @Bean
@@ -29,5 +33,13 @@ public class BeaverAuthAutoConfiguration {
     @ConditionalOnProperty(name = "beaver.auth.gateway-filter.enabled", havingValue = "true", matchIfMissing = true)
     public GatewaySecretFilter gatewaySecretFilter(@Value("${gateway.secret}") String gatewaySecret) {
         return new GatewaySecretFilter(gatewaySecret);
+    }
+
+    // Reactive-specific beans
+    @Bean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+    @ConditionalOnClass(name = "org.springframework.http.server.reactive.ServerHttpRequest")
+    public ReactiveTokenExtractor reactiveTokenExtractor() {
+        return new ReactiveTokenExtractor();
     }
 }
