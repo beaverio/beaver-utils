@@ -2,9 +2,7 @@ package com.beaver.auth.cookie;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ServletTokenExtractor {
 
     /**

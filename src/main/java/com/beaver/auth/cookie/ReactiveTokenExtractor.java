@@ -1,9 +1,7 @@
 package com.beaver.auth.cookie;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReactiveTokenExtractor {
 
     /**
