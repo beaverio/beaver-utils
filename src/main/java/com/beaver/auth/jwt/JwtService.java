@@ -1,5 +1,7 @@
 package com.beaver.auth.jwt;
 
+import com.beaver.auth.exceptions.InvalidRefreshTokenException;
+import com.beaver.auth.exceptions.AuthenticationFailedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -9,7 +11,6 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -20,15 +21,6 @@ public class JwtService {
     public JwtService(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
         this.secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
-    }
-
-    public String generateAccessToken(String userId, String email, String name) {
-        return generateToken(Map.of(
-            "userId", userId,
-            "email", email,
-            "name", name,
-            "type", "access"
-        ), jwtConfig.getAccessTokenValidity() * 60 * 1000); // minutes to milliseconds
     }
 
     public String generateAccessToken(String userId, String email, String name,
@@ -94,14 +86,6 @@ public class JwtService {
                 .filter(Objects::nonNull);
     }
 
-    public <T> Mono<T> extractClaim(String token, Function<Claims, T> claimsResolver) {
-        return extractAllClaims(token)
-                .map(claimsResolver)
-                .flatMap(value -> value != null
-                        ? Mono.just(value)
-                        : Mono.error(new RuntimeException("JWT claim is missing or null")));
-    }
-
     public Mono<Claims> extractAllClaims(String token) {
         return Mono.fromCallable(() ->
             Jwts.parser()
@@ -133,5 +117,22 @@ public class JwtService {
                         .onErrorReturn(false))
                 .defaultIfEmpty(false)
                 .onErrorReturn(false);
+    }
+
+    public Mono<Void> validateRefreshToken(String token) {
+        return isValidRefreshToken(token)
+                .filter(isValid -> isValid)
+                .switchIfEmpty(Mono.error(new InvalidRefreshTokenException("Invalid refresh token: token is invalid or expired")))
+                .then();
+    }
+
+    public Mono<String> extractUserIdFromToken(String token) {
+        return extractUserId(token)
+                .switchIfEmpty(Mono.error(new AuthenticationFailedException("Token does not contain userId claim")));
+    }
+
+    public Mono<String> extractWorkspaceIdFromToken(String token) {
+        return extractWorkspaceId(token)
+                .switchIfEmpty(Mono.error(new AuthenticationFailedException("Token does not contain workspaceId claim")));
     }
 }
