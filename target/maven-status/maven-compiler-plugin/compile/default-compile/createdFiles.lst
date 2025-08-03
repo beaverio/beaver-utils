@@ -1,0 +1,5 @@
+com/beaver/auth/PermissionAspect.class
+com/beaver/auth/RequiresPermission.class
+com/beaver/auth/Permission.class
+com/beaver/auth/PermissionService.class
+com/beaver/auth/AccessDeniedException.class
