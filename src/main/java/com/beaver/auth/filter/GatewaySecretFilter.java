@@ -34,7 +34,7 @@ public class GatewaySecretFilter implements Filter {
         }
 
         // Validate gateway secret header
-        String requestSecret = httpRequest.getHeader("X-Service-Secret");
+        String requestSecret = httpRequest.getHeader("X-Gateway-Secret");
         if (!gatewaySecret.equals(requestSecret)) {
             log.warn("Invalid service secret for request to: {}", path);
             httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
