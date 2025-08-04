@@ -23,14 +23,13 @@ public class JwtService {
         this.secretKey = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(String userId, String email, String name,
-                                      String workspaceId, Set<String> permissions) {
+    public String generateAccessToken(AccessToken claims) {
         return generateToken(Map.of(
-                "userId", userId,
-                "email", email,
-                "name", name,
-                "workspaceId", workspaceId,
-                "permissions", new ArrayList<>(permissions),
+                "userId", claims.userId(),
+                "email", claims.email(),
+                "name", claims.name(),
+                "workspaceId", claims.workspaceId(),
+                "permissions", new ArrayList<>(claims.permissions()),
                 "type", "access"
         ), jwtConfig.getAccessTokenValidity() * 60 * 1000);
     }
