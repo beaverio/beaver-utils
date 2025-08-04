@@ -8,14 +8,15 @@ import lombok.RequiredArgsConstructor;
 public enum Permission {
     DENY_ALL("deny:all"),
 
-    // Financial permissions
+    USER_READ("user:read"),
+    USER_WRITE("user:write"),
+
     TRANSACTION_READ("transaction:read"),
     TRANSACTION_WRITE("transaction:write"),
     BUDGET_READ("budget:read"),
     BUDGET_WRITE("budget:write"),
     REPORT_READ("report:read"),
 
-    // Workspace management
     WORKSPACE_OWNER("workspace:owner"),
     WORKSPACE_READ("workspace:read"),
     WORKSPACE_WRITE("workspace:write");
