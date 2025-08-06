@@ -4,12 +4,16 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Order(1)
+@Order(2)
 @Slf4j
+@Component
+@ConditionalOnProperty(name = "beaver.security.gateway-secret.enabled", havingValue = "true", matchIfMissing = true)
 public class GatewaySecretFilter implements Filter {
 
     private final String gatewaySecret;
