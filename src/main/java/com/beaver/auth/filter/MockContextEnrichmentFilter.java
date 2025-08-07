@@ -16,15 +16,15 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Mock Gateway Filter for local development.
+ * Mock Context Filter for local development.
  * Simulates the gateway's header injection behavior when running services independently.
- * Only active when beaver.dev.mock-gateway.enabled=true
+ * Only active when beaver.dev.mock-context.enabled=true
  */
 @Slf4j
 @Component
 @Order(1)
-@ConditionalOnProperty(name = "beaver.dev.mock-gateway.enabled", havingValue = "true")
-public class MockGatewayFilter extends OncePerRequestFilter {
+@ConditionalOnProperty(name = "beaver.dev.mock-context.enabled", havingValue = "true")
+public class MockContextEnrichmentFilter extends OncePerRequestFilter {
 
     private static final String X_USER_ID = "X-User-Id";
     private static final String X_WORKSPACE_ID = "X-Workspace-Id";
@@ -42,7 +42,7 @@ public class MockGatewayFilter extends OncePerRequestFilter {
 
     @PostConstruct
     public void init() {
-        log.info("🚀 MockGatewayFilter ENABLED - Local development mode active");
+        log.info("🚀 MockContextEnrichmentFilter ENABLED - Local development mode active");
         log.info("Mock headers will be injected: X-User-Id, X-Workspace-Id, X-User-Permissions, X-Gateway-Secret");
         log.info("Base permissions: {}", basePermissions);
     }
