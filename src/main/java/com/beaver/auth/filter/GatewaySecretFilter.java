@@ -47,9 +47,6 @@ public class GatewaySecretFilter implements Filter {
 
         String requestSecret = httpRequest.getHeader("X-Gateway-Secret");
 
-        log.debug("Expected secret: [{}]", gatewaySecret);
-        log.debug("Received secret: [{}]", requestSecret);
-
         if (requestSecret == null) {
             log.warn("Missing X-Gateway-Secret header for request to: {}", path);
             httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
