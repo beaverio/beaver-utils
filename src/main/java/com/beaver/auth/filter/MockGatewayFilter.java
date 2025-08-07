@@ -11,6 +11,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 
@@ -38,6 +39,13 @@ public class MockGatewayFilter extends OncePerRequestFilter {
 
     // Additional permissions registered by services
     private final Set<String> additionalPermissions = new HashSet<>();
+
+    @PostConstruct
+    public void init() {
+        log.info("🚀 MockGatewayFilter ENABLED - Local development mode active");
+        log.info("Mock headers will be injected: X-User-Id, X-Workspace-Id, X-User-Permissions, X-Gateway-Secret");
+        log.info("Base permissions: {}", basePermissions);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -88,22 +96,20 @@ public class MockGatewayFilter extends OncePerRequestFilter {
             super(request);
             this.request = request;
 
-            // Add default headers only if they don't already exist
             if (request.getHeader(X_USER_ID) == null) {
-                mockHeaders.put(X_USER_ID, "dev-user-123");
+                mockHeaders.put(X_USER_ID, "550e8400-e29b-41d4-a716-446655440001");
             }
 
             if (request.getHeader(X_WORKSPACE_ID) == null) {
-                mockHeaders.put(X_WORKSPACE_ID, "dev-workspace-456");
+                mockHeaders.put(X_WORKSPACE_ID, "550e8400-e29b-41d4-a716-446655440002");
             }
 
             if (request.getHeader(X_USER_PERMISSIONS) == null) {
                 mockHeaders.put(X_USER_PERMISSIONS, String.join(",", permissions));
             }
 
-            // Add gateway secret for GatewaySecretFilter compatibility
             if (request.getHeader(X_GATEWAY_SECRET) == null) {
-                mockHeaders.put(X_GATEWAY_SECRET, "dev-gateway-secret");
+                mockHeaders.put(X_GATEWAY_SECRET, "local-gateway");
             }
         }
 

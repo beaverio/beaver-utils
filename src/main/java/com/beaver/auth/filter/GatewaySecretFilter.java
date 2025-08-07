@@ -7,19 +7,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
 @Order(2)
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "beaver.security.gateway-secret.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "beaver.auth.gateway-filter.enabled", havingValue = "true", matchIfMissing = true)
 public class GatewaySecretFilter implements Filter {
 
     private final String gatewaySecret;
 
-    public GatewaySecretFilter(String gatewaySecret) {
+    public GatewaySecretFilter(@Value("${gateway.secret}") String gatewaySecret) {
         this.gatewaySecret = gatewaySecret;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("🔒 GatewaySecretFilter ENABLED - Gateway secret validation is active");
+        log.info("Gateway secret configured: {}", gatewaySecret != null ? "[CONFIGURED]" : "[NOT SET]");
     }
 
     @Override
@@ -37,10 +45,9 @@ public class GatewaySecretFilter implements Filter {
             return;
         }
 
-        // Validate gateway secret header
         String requestSecret = httpRequest.getHeader("X-Gateway-Secret");
+
         if (!gatewaySecret.equals(requestSecret)) {
-            log.warn("Invalid service secret for request to: {}", path);
             httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
             httpResponse.setContentType("application/json");
             httpResponse.getWriter().write("{\"error\":\"Forbidden: Invalid service secret\"}");
