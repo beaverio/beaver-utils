@@ -18,6 +18,7 @@ import java.util.*;
 /**
  * Mock Context Filter for local development.
  * Simulates the gateway's header injection behavior when running services independently.
+ * Updated for RBAC system - injects role instead of permissions.
  * Only active when beaver.dev.mock-context.enabled=true
  */
 @Slf4j
@@ -28,23 +29,16 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
 
     private static final String X_USER_ID = "X-User-Id";
     private static final String X_WORKSPACE_ID = "X-Workspace-Id";
-    private static final String X_USER_PERMISSIONS = "X-User-Permissions";
+    private static final String X_USER_ROLE = "X-User-Role";
     private static final String X_GATEWAY_SECRET = "X-Gateway-Secret";
 
-    // Base permissions that every mock user should have
-    private final Set<String> basePermissions = Set.of(
-        "user:read", "user:write",
-        "workspace:read", "workspace:write", "workspace:owner"
-    );
-
-    // Additional permissions registered by services
-    private final Set<String> additionalPermissions = new HashSet<>();
+    private static final String DEFAULT_MOCK_ROLE = "OWNER";
 
     @PostConstruct
     public void init() {
-        log.info("🚀 MockContextEnrichmentFilter ENABLED - Local development mode active");
-        log.info("Mock headers will be injected: X-User-Id, X-Workspace-Id, X-User-Permissions, X-Gateway-Secret");
-        log.info("Base permissions: {}", basePermissions);
+        log.info("🚀 MockContextEnrichmentFilter ENABLED - RBAC Local development mode active");
+        log.info("Mock headers will be injected: X-User-Id, X-Workspace-Id, X-User-Role, X-Gateway-Secret");
+        log.info("Default mock role: {}", DEFAULT_MOCK_ROLE);
     }
 
     @Override
@@ -60,28 +54,13 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Only add headers if they're not already present (e.g., from manual testing)
-        MockGatewayRequestWrapper wrappedRequest = new MockGatewayRequestWrapper(request, getAllPermissions());
+        MockGatewayRequestWrapper wrappedRequest = new MockGatewayRequestWrapper(request);
 
-        log.debug("Added mock gateway headers for path: {} - User: {}, Workspace: {}, Permissions: {}",
+        log.debug("Added mock gateway headers for path: {} - User: {}, Workspace: {}, Role: {}",
                  path, wrappedRequest.getHeader(X_USER_ID), wrappedRequest.getHeader(X_WORKSPACE_ID),
-                 wrappedRequest.getHeader(X_USER_PERMISSIONS));
+                 wrappedRequest.getHeader(X_USER_ROLE));
 
         filterChain.doFilter(wrappedRequest, response);
-    }
-
-    /**
-     * Allow services to register additional permissions for local development
-     */
-    public void addServicePermissions(Collection<String> permissions) {
-        additionalPermissions.addAll(permissions);
-        log.info("Added {} additional permissions to mock gateway: {}", permissions.size(), permissions);
-    }
-
-    private Set<String> getAllPermissions() {
-        Set<String> allPermissions = new HashSet<>(basePermissions);
-        allPermissions.addAll(additionalPermissions);
-        return allPermissions;
     }
 
     /**
@@ -92,7 +71,7 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
         private final Map<String, String> mockHeaders = new HashMap<>();
         private final HttpServletRequest request;
 
-        public MockGatewayRequestWrapper(HttpServletRequest request, Set<String> permissions) {
+        public MockGatewayRequestWrapper(HttpServletRequest request) {
             super(request);
             this.request = request;
 
@@ -104,8 +83,8 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
                 mockHeaders.put(X_WORKSPACE_ID, "550e8400-e29b-41d4-a716-446655440002");
             }
 
-            if (request.getHeader(X_USER_PERMISSIONS) == null) {
-                mockHeaders.put(X_USER_PERMISSIONS, String.join(",", permissions));
+            if (request.getHeader(X_USER_ROLE) == null) {
+                mockHeaders.put(X_USER_ROLE, DEFAULT_MOCK_ROLE);
             }
 
             if (request.getHeader(X_GATEWAY_SECRET) == null) {
@@ -119,31 +98,26 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
             if (mockHeaders.containsKey(name)) {
                 return mockHeaders.get(name);
             }
-            return super.getHeader(name);
+            return request.getHeader(name);
         }
 
         @Override
         public Enumeration<String> getHeaders(String name) {
-            // If we have a mock header, return it as a single-value enumeration
             if (mockHeaders.containsKey(name)) {
-                return Collections.enumeration(List.of(mockHeaders.get(name)));
+                return Collections.enumeration(Collections.singletonList(mockHeaders.get(name)));
             }
-            return super.getHeaders(name);
+            return request.getHeaders(name);
         }
 
         @Override
         public Enumeration<String> getHeaderNames() {
-            // Combine original headers with mock headers
             Set<String> headerNames = new HashSet<>();
+            headerNames.addAll(mockHeaders.keySet());
 
-            // Add original headers
-            Enumeration<String> originalHeaders = super.getHeaderNames();
+            Enumeration<String> originalHeaders = request.getHeaderNames();
             while (originalHeaders.hasMoreElements()) {
                 headerNames.add(originalHeaders.nextElement());
             }
-
-            // Add mock headers
-            headerNames.addAll(mockHeaders.keySet());
 
             return Collections.enumeration(headerNames);
         }

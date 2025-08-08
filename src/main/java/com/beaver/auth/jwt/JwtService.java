@@ -29,7 +29,7 @@ public class JwtService {
                 "email", claims.email(),
                 "name", claims.name(),
                 "workspaceId", claims.workspaceId(),
-                "permissions", new ArrayList<>(claims.permissions()),
+                "role", claims.role(),  // Changed from permissions() to role()
                 "type", "access"
         ), jwtConfig.getAccessTokenValidity() * 60 * 1000);
     }
@@ -65,6 +65,14 @@ public class JwtService {
                 .filter(Objects::nonNull);
     }
 
+    public Mono<String> extractRole(String token) {
+        return extractAllClaims(token)
+                .map(claims -> claims.get("role", String.class))
+                .filter(Objects::nonNull);
+    }
+
+    // Deprecated - kept for backward compatibility during migration
+    @Deprecated
     public Mono<Set<String>> extractPermissions(String token) {
         return extractAllClaims(token)
                 .map(claims -> {
