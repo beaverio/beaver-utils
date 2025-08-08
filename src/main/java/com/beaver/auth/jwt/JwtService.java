@@ -34,9 +34,10 @@ public class JwtService {
         ), jwtConfig.getAccessTokenValidity() * 60 * 1000);
     }
 
-    public String generateRefreshToken(String userId) {
+    public String generateRefreshToken(RefreshToken claims) {
         return generateToken(Map.of(
-            "userId", userId,
+            "userId", claims.userId,
+            "workspaceId", claims.workspaceId,
             "type", "refresh"
         ), jwtConfig.getRefreshTokenValidity() * 60 * 1000); // minutes to milliseconds
     }
@@ -69,16 +70,6 @@ public class JwtService {
         return extractAllClaims(token)
                 .map(claims -> claims.get("role", String.class))
                 .filter(Objects::nonNull);
-    }
-
-    // Deprecated - kept for backward compatibility during migration
-    @Deprecated
-    public Mono<Set<String>> extractPermissions(String token) {
-        return extractAllClaims(token)
-                .map(claims -> {
-                    List<String> perms = claims.get("permissions", List.class);
-                    return perms != null ? new HashSet<>(perms) : new HashSet<>();
-                });
     }
 
     public Mono<String> extractTokenType(String token) {
