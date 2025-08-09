@@ -23,7 +23,7 @@ import java.util.*;
 @Component
 @Order(1)
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "beaver.dev.mock-context.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "beaver.auth.mock-context.enabled", havingValue = "true")
 @EnableConfigurationProperties(MockContextEnrichmentFilter.MockContextProperties.class)
 public class MockContextEnrichmentFilter extends OncePerRequestFilter {
 
@@ -41,7 +41,7 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
         log.info("Mock headers will be injected: X-User-Id, X-Workspace-Id, X-User-Role, X-Gateway-Secret");
 
         if (mockContextProperties.getUsers().isEmpty()) {
-            log.warn("No users configured in beaver.dev.mock-context.users - using defaults");
+            log.warn("No users configured in beaver.auth.mock-context.users - using defaults");
         } else {
             int selectedIndex = mockContextProperties.getDefaultUser();
             if (selectedIndex >= 0 && selectedIndex < mockContextProperties.getUsers().size()) {
@@ -160,7 +160,7 @@ public class MockContextEnrichmentFilter extends OncePerRequestFilter {
     }
 
     @Data
-    @ConfigurationProperties(prefix = "beaver.dev.mock-context")
+    @ConfigurationProperties(prefix = "beaver.auth.mock-context")
     public static class MockContextProperties {
         private boolean enabled = false;
         private int defaultUser = 0;
