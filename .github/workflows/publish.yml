@@ -25,9 +25,7 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github
-        settings-path: ${{ github.workspace }}
-        
+
     - name: Cache Maven dependencies
       uses: actions/cache@v3
       with:
@@ -47,7 +45,7 @@ jobs:
         mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
         
     - name: Build and publish snapshot to GitHub Packages
-      run: mvn clean deploy
+      run: mvn clean deploy -s $GITHUB_WORKSPACE/.github/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,8 +66,6 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github
-        settings-path: ${{ github.workspace }}
 
     - name: Cache Maven dependencies
       uses: actions/cache@v3
@@ -89,6 +85,6 @@ jobs:
         mvn versions:set -DnewVersion=${{ steps.version.outputs.version }}
 
     - name: Build and publish release to GitHub Packages
-      run: mvn clean deploy
+      run: mvn clean deploy -s $GITHUB_WORKSPACE/.github/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
