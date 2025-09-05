@@ -6,11 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 @Aspect
 @Component
@@ -23,26 +22,30 @@ public class RoleAspect {
     @Around("@annotation(requiresRole)")
     public Object checkRole(ProceedingJoinPoint joinPoint, RequiresRole requiresRole) throws Throwable {
 
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-
-        String workspaceId = request.getHeader("X-Workspace-Id");
-        String userId = request.getHeader("X-User-Id");
-        String userRoleHeader = request.getHeader("X-User-Role");
-
-        if (workspaceId == null || userId == null) {
-            throw new AccessDeniedException("Missing workspace or user context");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt)) {
+            throw new AccessDeniedException("Missing or invalid JWT authentication");
         }
 
-        if (userRoleHeader == null || userRoleHeader.trim().isEmpty()) {
-            throw new AccessDeniedException("Missing user role context");
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        String workspaceId = jwt.getClaimAsString("workspace_id");
+        String userId = jwt.getClaimAsString("user_id");
+        String userRoleString = jwt.getClaimAsString("role");
+
+        if (workspaceId == null || userId == null) {
+            throw new AccessDeniedException("Missing workspace or user context in JWT");
+        }
+
+        if (userRoleString == null || userRoleString.trim().isEmpty()) {
+            throw new AccessDeniedException("Missing user role context in JWT");
         }
 
         Role userRole;
         try {
-            userRole = Role.valueOf(userRoleHeader.toUpperCase());
+            userRole = Role.valueOf(userRoleString.toUpperCase());
         } catch (IllegalArgumentException e) {
-            log.warn("Invalid role '{}' for user {} in workspace {}", userRoleHeader, userId, workspaceId);
+            log.warn("Invalid role '{}' for user {} in workspace {}", userRoleString, userId, workspaceId);
             throw new AccessDeniedException("Invalid user role");
         }
 
